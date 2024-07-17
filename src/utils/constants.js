@@ -20,3 +20,5 @@ export const YOUTUBE_SUGGESTION_API = 'http://suggestqueries.google.com/complete
 
 // get trending video categories
 export const YOUTUBE_VIDEO_CATEGORIES_API = 'https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=IN&key=' + GOOGLE_API_KEY;
+
+export const LIVE_CHAT_COUNT = 25;

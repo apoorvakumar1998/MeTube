@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { HAMBURGER_URL, USER_AVATAR_URL, YOUTUBE_LOGO_URL, YOUTUBE_SUGGESTION_API } from '../utils/constants'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setSearchText, toggleSideBar } from '../utils/appSlice';
 import { Link } from 'react-router-dom';
+import { storeSearchCache } from '../utils/searchSlice';
 
 const Head = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,6 +13,7 @@ const Head = () => {
   const toggle = () => {
     dispatch(toggleSideBar())
   }
+  const searchCache = useSelector(store => store.search);
 
   const onSearchTextClick = (suggestion) => {
     setShowSuggestions(false);
@@ -20,7 +22,11 @@ const Head = () => {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      getSuggestions();
+      if (searchCache[searchQuery]) {
+        setSuggestions(searchCache[searchQuery])
+      } else {
+        getSuggestions();
+      }
     }, 500);
     return () => {
       clearTimeout(timeoutId);
@@ -36,12 +42,15 @@ const Head = () => {
     const response = await fetch(YOUTUBE_SUGGESTION_API + searchQuery);
     const json = await response.json();
     setSuggestions(json[1]);
+    dispatch(storeSearchCache({
+      [searchQuery]: json[1]
+    }));
   }
 
   const onEnterClick = (e) => {
     if (e.keyCode === 13) {
       setShowSuggestions(false);
-      onSearchTextClick(e.target.value)
+      onSearchTextClick(e.target.value);
     }
   }
 
